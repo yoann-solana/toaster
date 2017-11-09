@@ -1,0 +1,78 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>locate_mocap</name>
+  <version>0.0.1</version>
+  <description>The locate_mocap package used to compute the transform
+  between the origin of the MOCAP system and the map frame of the adream apartment</description>
+
+  <license>BSD</license>
+
+  <maintainer email="ysolana@gmail.com">Yoann Solana</maintainer>
+  <author email="ysolana@gmail.com">Yoann Solana</author>
+
+  <!-- Url tags are optional, but multiple are allowed, one per tag -->
+  <!-- Optional attribute type can be: website, bugtracker, or repository -->
+  <!-- TODO: -->
+  <!-- <url type="website">http://wiki.ros.org/locate_mocap</url> -->
+
+
+
+  <!-- The *depend tags are used to specify dependencies -->
+  <!-- Dependencies can be catkin packages or system dependencies -->
+  <!-- Examples: -->
+  <!-- Use depend as a shortcut for packages that are both build and exec dependencies -->
+  <!--   <depend>roscpp</depend> -->
+  <!--   Note that this is equivalent to the following: -->
+  <!--   <build_depend>roscpp</build_depend> -->
+  <!--   <exec_depend>roscpp</exec_depend> -->
+  <!-- Use build_depend for packages you need at compile time: -->
+  <!--   <build_depend>message_generation</build_depend> -->
+  <!-- Use build_export_depend for packages you need in order to build against this package: -->
+  <!--   <build_export_depend>message_generation</build_export_depend> -->
+  <!-- Use buildtool_depend for build tool packages: -->
+  <!--   <buildtool_depend>catkin</buildtool_depend> -->
+  <!-- Use exec_depend for packages you need at runtime: -->
+  <!--   <exec_depend>message_runtime</exec_depend> -->
+  <!-- Use test_depend for packages you need only for testing: -->
+  <!--   <test_depend>gtest</test_depend> -->
+  <!-- Use doc_depend for packages you need only for building documentation: -->
+  <!--   <doc_depend>doxygen</doc_depend> -->
+
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <!-- Information about dependancues are defined in an alphabetic order -->
+
+  <build_depend>cmake_modules</build_depend>
+  <build_export_depend>cmake_modules</build_export_depend>
+
+  <build_depend>geometry_msgs</build_depend>
+  <build_export_depend>geometry_msgs</build_export_depend>
+  <exec_depend>geometry_msgs</exec_depend>
+
+  <build_depend>interactive_markers</build_depend>
+  <build_export_depend>interactive_markers</build_export_depend>
+  <exec_depend>interactive_markers</exec_depend>
+
+  <build_depend>roscpp</build_depend>
+  <build_export_depend>roscpp</build_export_depend>
+  <exec_depend>roscpp</exec_depend>
+
+  <build_depend>roslib</build_depend>
+  <build_export_depend>roslib</build_export_depend>
+  <exec_depend>roslib</exec_depend>
+
+  <build_depend>tf2</build_depend>
+  <build_export_depend>tf2</build_export_depend>
+  <exec_depend>tf2</exec_depend>
+
+  <build_depend>tf2_ros</build_depend>
+  <build_export_depend>tf2_ros</build_export_depend>
+  <exec_depend>tf2_ros</exec_depend>
+
+  <build_depend>tinyxml</build_depend>
+  <build_export_depend>tinyxml</build_export_depend>
+  <exec_depend>tinyxml</exec_depend>
+
+
+</package>

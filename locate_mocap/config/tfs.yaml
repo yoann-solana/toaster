@@ -1,0 +1,31 @@
+---
+locate_mocap:
+    tf_map_2_aecm:
+        x: 2.
+        y: 6.
+        z: 2.
+        rx: 0.
+        ry: 0.
+        rz: O.
+    tf_aecm_2_aecma:
+        x: 0.1
+        y: 0.
+        z: 0.
+        rx: 0.
+        ry: 0.
+        rz: O.
+    tf_aecma_2_aec:
+        x: 0.1
+        y: 0.
+        z: 0.
+        rx: 0.
+        ry: 0.
+        rz: O.
+    tf_aec_2_mocap:
+        x: 3.
+        y: -2.
+        z: -2.
+        rx: 1.5708
+        ry: 0.
+        rz: 1.5708
+
