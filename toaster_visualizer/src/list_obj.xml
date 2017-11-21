@@ -94,7 +94,7 @@
     <object name="cube_MOCAP_1"                         mesh_resource="package://toaster_visualizer/mesh/toaster_objects/cube_MOCAP_1.dae" />
     <object name="cube_MOCAP_2"                         mesh_resource="package://toaster_visualizer/mesh/toaster_objects/cube_MOCAP_2.dae" />
 
-    <object name="env_adream_empty_updated"		mesh_resource="package://toaster_visualizer/mesh/toaster_environment/adream_empty_updated.dae" />
-    <object name="env_apartment_empty_updated"		mesh_resource="package://toaster_visualizer/mesh/toaster_environment/apartment_empty_updated.dae" />
+    <object name="env_adream_apartment_map"		mesh_resource="package://toaster_visualizer/mesh/toaster_environment/adream_apartment_in_map.dae" />
+    <object name="env_adream_apartment_mocap_ref"	mesh_resource="package://toaster_visualizer/mesh/toaster_environment/adream_apartment_in_mocap_ref.dae" />
 
 </list_obj> 
