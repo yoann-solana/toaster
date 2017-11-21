@@ -1,8 +1,0 @@
-<launch>
-
-  <!-- Load parameters for locate_mocap node -->
-	<rosparam command="load" file="$(find locate_mocap)/config/tfs.yaml" />
-
-  <!-- Launch locate_mocap node -->
-	<node name="locate_mocap" pkg="locate_mocap" type="locate_mocap" output="screen"/>  
-</launch>
