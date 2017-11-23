@@ -34,6 +34,20 @@ void MocapObjectReader::init(ros::NodeHandle* node, std::string topic, std::stri
   // Starts listening to the joint_states
   sub_ = node_->subscribe(topic, 1, &MocapObjectReader::optitrackCallback, this);
 
+  if (node_->hasParam(locate_mocap_prefix + "/" + tf_map_2_mocap_name))
+  {
+      if(!loadTfFromROSServer(*node, locate_mocap_prefix, tf_map_2_mocap_name, tf_map_2_mocap_))
+      {
+          ROS_WARN_STREAM(tf_map_2_mocap_name<<" frame not defined on the the ROS server");
+      }
+      else
+      {
+          ROS_WARN_STREAM("Using tf_map_mocap");
+          use_tf_map_mocap_ = true;
+      }
+  }
+  else
+  {
     if (node_->hasParam("mocap_calib_world_x"))
       node_->getParam("mocap_calib_world_x", offset_x);
     else
@@ -57,19 +71,7 @@ void MocapObjectReader::init(ros::NodeHandle* node, std::string topic, std::stri
       offset_z = 0;
       std::cout << "param mocap_calib_world_z note find : use default value : " << offset_z << std::endl;
     }
-    
-    if (node_->hasParam(locate_mocap_prefix + "/" + tf_map_2_mocap_name))
-    {
-        if(!loadTfFromROSServer(*node, locate_mocap_prefix, tf_map_2_mocap_name, tf_map_2_mocap_))
-        {
-            ROS_WARN_STREAM(tf_map_2_mocap_name<<" frame not defined on the the ROS server");
-        }
-        else
-        {
-            ROS_WARN_STREAM("Using tf_map_mocap");
-            use_tf_map_mocap_ = true;
-        }
-    }
+  }
 }
 
 void MocapObjectReader::optitrackCallback(const optitrack::or_pose_estimator_state::ConstPtr & msg)
@@ -90,33 +92,14 @@ void MocapObjectReader::optitrackCallback(const optitrack::or_pose_estimator_sta
         lastConfigMutex_.unlock();
 
         if (msg->pos.size() != 0) {
-
-            tf::Quaternion q(msg->pos[0].qx, msg->pos[0].qy, msg->pos[0].qz, msg->pos[0].qw);
-            double roll, pitch, yaw;
-            tf::Matrix3x3 m(q);
-            m.getEulerYPR(yaw, pitch, roll);
-
             //set position
             bg::model::point<double, 3, bg::cs::cartesian> objectPosition;
-            objectPosition.set<0>(msg->pos[0].x + offset_x);
-            objectPosition.set<1>(msg->pos[0].y + offset_y);
-            objectPosition.set<2>(msg->pos[0].z + offset_z);
-
             //set the orientation
             std::vector<double> objectOrientation;
-
-            //transform the pose message
-            objectOrientation.push_back(roll);
-            objectOrientation.push_back(pitch);
-            objectOrientation.push_back(yaw);
 
             // Convert the pose in the map frame if use_tf_map_mocap_ is true
             if(use_tf_map_mocap_)
             {
-                tf2::Transform tf_map_2_obj;
-                tf_map_2_obj.setOrigin(tf2::Vector3(msg->pos[0].x, msg->pos[0].y, msg->pos[0].z));
-                tf_map_2_obj.setRotation(tf2::Quaternion(msg->pos[0].qx, msg->pos[0].qy, msg->pos[0].qz, msg->pos[0].qw));
-
                 Eigen::Affine3d e_map_2_mocap = tf2::transformToEigen(tf_map_2_mocap_);
                 Eigen::Affine3d e_mocap_2_obj = Eigen::Affine3d(Eigen::Translation3d(msg->pos[0].x, msg->pos[0].y, msg->pos[0].z)
                                                             * Eigen::Quaterniond(msg->pos[0].qw, msg->pos[0].qx, msg->pos[0].qy, msg->pos[0].qz));
@@ -125,9 +108,9 @@ void MocapObjectReader::optitrackCallback(const optitrack::or_pose_estimator_sta
                 //// Set the value
                 geometry_msgs::TransformStamped tf_st_map_2_obj = tf2::eigenToTransform(e_map_2_obj);
                 // Position
-                objectPosition.set<0>(tf_map_2_obj.getOrigin()[0]);
-                objectPosition.set<1>(tf_map_2_obj.getOrigin()[1]);
-                objectPosition.set<2>(tf_map_2_obj.getOrigin()[2]);
+                objectPosition.set<0>(tf_st_map_2_obj.transform.translation.x);
+                objectPosition.set<1>(tf_st_map_2_obj.transform.translation.y);
+                objectPosition.set<2>(tf_st_map_2_obj.transform.translation.z);
 
                 // Orientation
                 tf2::Quaternion q_map_2_obj;
@@ -138,6 +121,22 @@ void MocapObjectReader::optitrackCallback(const optitrack::or_pose_estimator_sta
                 objectOrientation.push_back(r);
                 objectOrientation.push_back(p);
                 objectOrientation.push_back(y);
+            }
+            else
+            {
+                tf::Quaternion q(msg->pos[0].qx, msg->pos[0].qy, msg->pos[0].qz, msg->pos[0].qw);
+                double roll, pitch, yaw;
+                tf::Matrix3x3 m(q);
+                m.getEulerYPR(yaw, pitch, roll);
+
+                objectPosition.set<0>(msg->pos[0].x + offset_x);
+                objectPosition.set<1>(msg->pos[0].y + offset_y);
+                objectPosition.set<2>(msg->pos[0].z + offset_z);
+
+                //transform the pose message
+                objectOrientation.push_back(roll);
+                objectOrientation.push_back(pitch);
+                objectOrientation.push_back(yaw);
             }
 
             //put the data in the object
