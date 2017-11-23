@@ -12,6 +12,12 @@
 #include <math.h>
 #include <ostream>
 
+#include <utility/tf_utility.h>
+#include <tf2/LinearMath/Transform.h>
+#include <tf2/LinearMath/Matrix3x3.h>
+#include <Eigen/Geometry>
+#include <tf2_eigen/tf2_eigen.h>
+
 MocapObjectReader::MocapObjectReader() : ObjectReader()
 {
 }
@@ -22,6 +28,7 @@ void MocapObjectReader::init(ros::NodeHandle* node, std::string topic, std::stri
   std::cout << "[PDG] Initializing MocapObjectReader" << std::endl;
   Reader<MovableObject>::init(node, param);
   id_ = id;
+  use_tf_map_mocap_ = false;
 
   // ******************************************
   // Starts listening to the joint_states
@@ -49,6 +56,19 @@ void MocapObjectReader::init(ros::NodeHandle* node, std::string topic, std::stri
     {
       offset_z = 0;
       std::cout << "param mocap_calib_world_z note find : use default value : " << offset_z << std::endl;
+    }
+    
+    if (node_->hasParam(locate_mocap_prefix + "/" + tf_map_2_mocap_name))
+    {
+        if(!loadTfFromROSServer(*node, locate_mocap_prefix, tf_map_2_mocap_name, tf_map_2_mocap_))
+        {
+            ROS_WARN_STREAM(tf_map_2_mocap_name<<" frame not defined on the the ROS server");
+        }
+        else
+        {
+            ROS_WARN_STREAM("Using tf_map_mocap");
+            use_tf_map_mocap_ = true;
+        }
     }
 }
 
@@ -89,6 +109,36 @@ void MocapObjectReader::optitrackCallback(const optitrack::or_pose_estimator_sta
             objectOrientation.push_back(roll);
             objectOrientation.push_back(pitch);
             objectOrientation.push_back(yaw);
+
+            // Convert the pose in the map frame if use_tf_map_mocap_ is true
+            if(use_tf_map_mocap_)
+            {
+                tf2::Transform tf_map_2_obj;
+                tf_map_2_obj.setOrigin(tf2::Vector3(msg->pos[0].x, msg->pos[0].y, msg->pos[0].z));
+                tf_map_2_obj.setRotation(tf2::Quaternion(msg->pos[0].qx, msg->pos[0].qy, msg->pos[0].qz, msg->pos[0].qw));
+
+                Eigen::Affine3d e_map_2_mocap = tf2::transformToEigen(tf_map_2_mocap_);
+                Eigen::Affine3d e_mocap_2_obj = Eigen::Affine3d(Eigen::Translation3d(msg->pos[0].x, msg->pos[0].y, msg->pos[0].z)
+                                                            * Eigen::Quaterniond(msg->pos[0].qw, msg->pos[0].qx, msg->pos[0].qy, msg->pos[0].qz));
+                Eigen::Affine3d e_map_2_obj = e_map_2_mocap*e_mocap_2_obj;
+
+                //// Set the value
+                geometry_msgs::TransformStamped tf_st_map_2_obj = tf2::eigenToTransform(e_map_2_obj);
+                // Position
+                objectPosition.set<0>(tf_map_2_obj.getOrigin()[0]);
+                objectPosition.set<1>(tf_map_2_obj.getOrigin()[1]);
+                objectPosition.set<2>(tf_map_2_obj.getOrigin()[2]);
+
+                // Orientation
+                tf2::Quaternion q_map_2_obj;
+                tf2::fromMsg(tf_st_map_2_obj.transform.rotation, q_map_2_obj);
+                tf2::Matrix3x3 m_map_2_obj(q_map_2_obj);
+                double r, p, y;
+                m_map_2_obj.getRPY(r, p, y);
+                objectOrientation.push_back(r);
+                objectOrientation.push_back(p);
+                objectOrientation.push_back(y);
+            }
 
             //put the data in the object
             curObject->setOrientation(objectOrientation);

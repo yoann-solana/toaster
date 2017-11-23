@@ -16,12 +16,15 @@ find_package(catkin REQUIRED COMPONENTS
   tf
   cmake_modules
   roslib
+  tf2
+  tf2_ros
 )
 find_package(cmake_modules REQUIRED)
 
 ## System dependencies are found with CMake's conventions
 find_package(Boost REQUIRED COMPONENTS)# system)
 find_package(TinyXML REQUIRED)
+find_package(Eigen REQUIRED)
 
 
 ## Uncomment this if the package has a setup.py. This macro ensures
@@ -96,7 +99,19 @@ find_package(TinyXML REQUIRED)
 catkin_package(
   INCLUDE_DIRS include
 #  LIBRARIES pdg
-  CATKIN_DEPENDS roscpp rospy std_msgs spencer_tracking_msgs niut_msgs toaster_msgs message_generation message_runtime tf roslib
+  CATKIN_DEPENDS
+    roscpp
+    rospy
+    std_msgs
+    spencer_tracking_msgs
+    niut_msgs
+    toaster_msgs
+    message_generation
+    message_runtime
+    tf
+    roslib
+    tf2
+    tf2_ros
 #  DEPENDS system_lib
 )
 
@@ -116,6 +131,7 @@ include_directories(
   $ENV{TOASTERLIB_DIR}/include
   ${TinyXML_INCLUDE_DIRS}
 #  $ENV{ROBOTPKG_BASE}/include
+  ${EIGEN_INCLUDE_DIRS}
 )
 
 ## Declare a cpp library

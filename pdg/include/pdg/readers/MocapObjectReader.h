@@ -16,6 +16,11 @@
 #include <string>
 #include "optitrack/or_pose_estimator_state.h"
 
+#include <geometry_msgs/TransformStamped.h>
+
+const std::string tf_map_2_mocap_name = "tf_map_2_mocap";
+const std::string locate_mocap_prefix = "/locate_mocap";
+
 class MocapObjectReader : public ObjectReader {
 public:
     MocapObjectReader();
@@ -33,6 +38,10 @@ private:
     std::string id_;
     ros::Subscriber sub_;
     void optitrackCallback(const optitrack::or_pose_estimator_state::ConstPtr& msg);
+
+    // If the tf between the mocap and the map frames is declared use it
+    bool use_tf_map_mocap_;
+    geometry_msgs::TransformStamped tf_map_2_mocap_;
 };
 
 #endif	/* MOCAPOBJECTREADER_H */
