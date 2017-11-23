@@ -185,7 +185,7 @@ public:
         geometry_msgs::Pose p;
         p.position.x = 0.0;
         p.position.y = 0.0;
-        p.position.z = -0.05;
+        p.position.z = 0.0;
         p.orientation.w = 1.0;
         visualization_msgs::Marker m = MarkerCreator::defineObj(p, "env", false, visualizer.id_generator("env"), listObj);
         obj_list.markers.push_back(m);
