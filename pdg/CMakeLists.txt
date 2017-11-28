@@ -161,9 +161,11 @@ set(${PROJECT_NAME}_SOURCES
     src/readers/MocapObjectReader.cpp
     src/readers/MocapObjectsReader.cpp
     src/readers/FactReader.cpp
-    #utility
+    #utilities
     src/utility/XmlUtility.cpp
     src/utility/EntityUtility.cpp
+    src/utility/string_utility.cpp
+    src/utility/tf_utility.cpp
 )
 add_executable(pdg ${${PROJECT_NAME}_SOURCES} src/main.cpp)
 

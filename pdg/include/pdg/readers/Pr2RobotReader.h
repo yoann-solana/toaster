@@ -33,6 +33,8 @@ private:
 
     void setRobotJointLocation(tf::TransformListener &listener, Joint* joint);
     void pr2JointStateCallBack(const sensor_msgs::JointState::ConstPtr& msg);
+
+    void mocapRobCb(const optitrack::or_pose_estimator_state::ConstPtr & msg);
 };
 
 #endif /* PR2ROBOTREADER_H */

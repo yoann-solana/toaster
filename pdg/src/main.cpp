@@ -171,15 +171,18 @@ void broadcastTfEntity(tf::TransformBroadcaster &tf_br,toaster_msgs::Entity &ent
     transform.setRotation(tf::Quaternion(pose.orientation.x,pose.orientation.y,pose.orientation.z,pose.orientation.w));
     tf_br.sendTransform(tf::StampedTransform(transform,stamp,"map",prefix+"/"+entity.id));
 }
-void broadcastTfAgent(tf::TransformBroadcaster &tf_br,toaster_msgs::Agent &agent,const std::string &prefix,ros::Time &stamp){
+void broadcastTfAgent(tf::TransformBroadcaster &tf_br,toaster_msgs::Agent &agent,const std::string &prefix,ros::Time &stamp, bool broadcast_skeleton=true){
     geometry_msgs::Pose &pose=agent.meEntity.pose;
     tf::Transform transform;
     transform.setOrigin(tf::Vector3(pose.position.x,pose.position.y,pose.position.z));
     transform.setRotation(tf::Quaternion(pose.orientation.x,pose.orientation.y,pose.orientation.z,pose.orientation.w));
-    tf_br.sendTransform(tf::StampedTransform(transform,stamp,"map",prefix+agent.meEntity.id+"/base"));
+    tf_br.sendTransform(tf::StampedTransform(transform, stamp, "map", prefix+agent.meEntity.id+"/base"));
 
-    for(uint i_jnt=0;i_jnt<agent.skeletonJoint.size();++i_jnt){
-        broadcastTfEntity(tf_br,agent.skeletonJoint[i_jnt].meEntity,prefix+"/"+agent.meEntity.id,stamp);
+    if(broadcast_skeleton)
+    {
+        for(uint i_jnt=0;i_jnt<agent.skeletonJoint.size();++i_jnt){
+            broadcastTfEntity(tf_br,agent.skeletonJoint[i_jnt].meEntity,prefix+"/"+agent.meEntity.id,stamp);
+        }
     }
 }
 
@@ -277,6 +280,7 @@ int main(int argc, char** argv) {
         {
           (*it)->updateEntityPose(newPoseEnt_);
           (*it)->Publish(list_msg);
+          (*it)->publishTfBase(tf_br);
         }
 
         for(vector<ObjectReader*>::iterator it = objectReaders.begin(); it != objectReaders.end(); ++it)
@@ -305,7 +309,7 @@ int main(int argc, char** argv) {
             broadcastTfAgent(tf_br,it->meAgent,"",list_msg.human_msg.header.stamp);
         }
         for(typeof(list_msg.robot_msg.robotList.begin()) it=list_msg.robot_msg.robotList.begin(); it!= list_msg.robot_msg.robotList.end();++it){
-            broadcastTfAgent(tf_br,it->meAgent,"",list_msg.robot_msg.header.stamp);
+            broadcastTfAgent(tf_br,it->meAgent,"",list_msg.robot_msg.header.stamp, false);
         }
 
 
