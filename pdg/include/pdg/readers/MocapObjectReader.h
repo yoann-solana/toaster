@@ -15,11 +15,10 @@
 #include <ros/ros.h>
 #include <string>
 #include "optitrack/or_pose_estimator_state.h"
+#include <utility/params.h>
 
 #include <geometry_msgs/TransformStamped.h>
 
-const std::string tf_map_2_mocap_name = "tf_map_2_mocap";
-const std::string locate_mocap_prefix = "/locate_mocap";
 
 class MocapObjectReader : public ObjectReader {
 public:

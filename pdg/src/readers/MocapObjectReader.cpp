@@ -151,8 +151,7 @@ void MocapObjectReader::optitrackCallback(const optitrack::or_pose_estimator_sta
         }
 
     } catch (tf::TransformException ex) {
-      std::string err = "[Mocap " + id_ + " transfor] " + std::string(ex.what());
-      ROS_ERROR("%s", err.c_str());
+      ROS_ERROR_STREAM("[Mocap " + id_ + " transfor] " + std::string(ex.what()));
     }
   }
 }
