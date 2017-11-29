@@ -47,6 +47,7 @@ class RobotReader : public Reader<Robot>{
         std::string mocap_robot_topic_;
         ros::Subscriber sub_mocap_rob_pose_;
         geometry_msgs::TransformStamped tf_map_2_mocap_;
+        geometry_msgs::TransformStamped tf_map_2_odom_combined_;
 
         bool isPresent(std::string id);
 

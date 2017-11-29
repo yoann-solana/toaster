@@ -23,6 +23,9 @@ void RobotReader::init()
 
     if(use_mocap_loc_)
     {
+        tf_map_2_odom_combined_.header.frame_id = "map";
+        tf_map_2_odom_combined_.child_frame_id = "odom_combined";
+
         // Get the name and pseudo of the robot
         node_->getParam(key_pref + "robot_name", robot_name_);
         node_->getParam(key_pref + "robot_pseudo", robot_pseudo_);
@@ -79,20 +82,19 @@ void RobotReader::publishTfBase(tf::TransformBroadcaster& tf_br)
     if(!use_mocap_loc_)
         return;
 
-    Robot* curRobot = lastConfig_["pr2"];
+    tf::Transform t;
+    t.setOrigin(tf::Vector3(tf_map_2_odom_combined_.transform.translation.x,
+                                    tf_map_2_odom_combined_.transform.translation.y,
+                                    tf_map_2_odom_combined_.transform.translation.z));
+    t.setRotation(tf::Quaternion(tf_map_2_odom_combined_.transform.rotation.x,
+                                         tf_map_2_odom_combined_.transform.rotation.y,
+                                         tf_map_2_odom_combined_.transform.rotation.z,
+                                         tf_map_2_odom_combined_.transform.rotation.w));
 
-    tf::Transform transform;
-    transform.setOrigin(tf::Vector3(curRobot->getPosition().get<0>(), curRobot->getPosition().get<1>(), curRobot->getPosition().get<2>()));
-    double r = curRobot->getOrientation()[0];
-    double p = curRobot->getOrientation()[1];
-    double y = curRobot->getOrientation()[2];
-    tf::Quaternion q = tf::createQuaternionFromRPY(r, p, y);
-    transform.setRotation(tf::Quaternion(q.x(), q.y(), q.z(), q.w()));
+    tf_br.sendTransform(tf::StampedTransform(t, ros::Time::now(), tf_map_2_odom_combined_.header.frame_id, tf_map_2_odom_combined_.child_frame_id));
 
-    tf_br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "map", robot_footprint_));
-
-    std::cout<<"Published tf_map_2_"<<robot_footprint_<<": "<<curRobot->getPosition().get<0>()<<" "<<curRobot->getPosition().get<1>()<<" "<<curRobot->getPosition().get<2>()<<
-               "; "<<r<<" "<<p<<" "<<y<<std::endl;
+//    std::cout<<"Published tf_map_2_"<<"odom_combined"<<": "<<t.getOrigin()[0]<<" "<<t.getOrigin()[1]<<" "<<t.getOrigin()[2]<<
+//               "; "<<t.getRotation().getX()<<" "<<t.getRotation().getY()<<" "<<t.getRotation().getZ()<<" "<<t.getRotation().getW()<<std::endl;
 }
 
 void RobotReader::Publish(struct toasterList_t& list_msg)

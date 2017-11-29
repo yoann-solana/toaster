@@ -15,6 +15,7 @@ find_package(catkin REQUIRED COMPONENTS
   toaster_msgs
   tf
   cmake_modules
+  eigen_conversions
   roslib
   tf2
   tf2_ros
@@ -110,6 +111,7 @@ catkin_package(
     message_runtime
     tf
     roslib
+    eigen_conversions
     tf2
     tf2_ros
 #  DEPENDS system_lib

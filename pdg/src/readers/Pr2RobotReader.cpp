@@ -5,6 +5,7 @@
 #include <Eigen/Geometry>
 #include <tf2_eigen/tf2_eigen.h>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
+#include <eigen_conversions/eigen_msg.h>
 
 Pr2RobotReader::Pr2RobotReader(bool fullRobot)
     : RobotReader()
@@ -114,7 +115,37 @@ void Pr2RobotReader::updateRobot(tf::TransformListener &listener)
     //// We start with base:
     if(use_mocap_loc_) // When the base is localed with the MOCAP sytem
     {
-        // Do nothing here, the mocapRobCb call back function already update the robot config
+        //// Convert the pose of the robot from map->base_footprint to map->odom_combined
+        // Get the pose map->base_footprint
+        double r = curRobot->getOrientation()[0];
+        double p = curRobot->getOrientation()[1];
+        double y = curRobot->getOrientation()[2];
+        tf::Quaternion q = tf::createQuaternionFromRPY(r, p, y);
+        Eigen::Affine3d e_map_2_base_footprint = Eigen::Affine3d(
+                Eigen::Translation3d(curRobot->getPosition().get<0>(), curRobot->getPosition().get<1>(), curRobot->getPosition().get<2>())
+                * Eigen::Quaterniond(q.w(), q.x(), q.y(), q.z()));
+
+        // Get the pose odom_combined->base_footprint
+        bool tf_ok = false;
+        tf::StampedTransform t;
+        try {
+            listener.waitForTransform(robot_footprint_, "odom_combined", ros::Time(0), ros::Duration(1.0) ); // dest frame, origin frame
+            listener.lookupTransform(robot_footprint_, "odom_combined", ros::Time(0), t);
+            tf_ok = true;
+        } catch (tf::TransformException ex) {
+            ROS_ERROR("%s",ex.what());
+        }
+
+        if(tf_ok)
+        {
+            Eigen::Affine3d e_odom_combined_2_base_footprint = Eigen::Affine3d(
+                    Eigen::Translation3d(t.getOrigin()[0], t.getOrigin()[1], t.getOrigin()[2])
+                    * Eigen::Quaterniond(t.getRotation().getW(), t.getRotation().getX(), t.getRotation().getY(), t.getRotation().getZ()));
+
+            Eigen::Affine3d e_map_2_odom_combined;
+            e_map_2_odom_combined = e_map_2_base_footprint * e_odom_combined_2_base_footprint.inverse();
+            tf::transformEigenToMsg(e_map_2_odom_combined, tf_map_2_odom_combined_.transform);
+        }
     }
     else
     {

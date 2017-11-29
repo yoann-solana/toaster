@@ -63,6 +63,9 @@
   <run_depend>tinyxml</run_depend>
   <run_depend>roslib</run_depend>
 
+  <build_depend>eigen_conversions</build_depend>
+  <run_depend> eigen_conversions </run_depend>
+
   <build_depend>tf2</build_depend>
   <run_depend> tf2 </run_depend>
 
