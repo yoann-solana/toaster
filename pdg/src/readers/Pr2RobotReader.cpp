@@ -45,23 +45,23 @@ void Pr2RobotReader::mocapRobCb(const optitrack::or_pose_estimator_state::ConstP
 
               // Convert the pose in the map frame if use_tf_map_mocap_ is true
               Eigen::Affine3d e_map_2_mocap = tf2::transformToEigen(tf_map_2_mocap_);
-              Eigen::Affine3d e_mocap_2_obj = Eigen::Affine3d(Eigen::Translation3d(msg->pos[0].x, msg->pos[0].y, msg->pos[0].z)
+              Eigen::Affine3d e_mocap_2_base = Eigen::Affine3d(Eigen::Translation3d(msg->pos[0].x, msg->pos[0].y, msg->pos[0].z)
                                                           * Eigen::Quaterniond(msg->pos[0].qw, msg->pos[0].qx, msg->pos[0].qy, msg->pos[0].qz));
-              Eigen::Affine3d e_map_2_obj = e_map_2_mocap*e_mocap_2_obj;
+              Eigen::Affine3d e_map_2_base = e_map_2_mocap*e_mocap_2_base;
 
               //// Set the value
-              geometry_msgs::TransformStamped tf_st_map_2_obj = tf2::eigenToTransform(e_map_2_obj);
+              geometry_msgs::TransformStamped tf_st_map_2_base = tf2::eigenToTransform(e_map_2_base);
               // Position
-              rob_position.set<0>(tf_st_map_2_obj.transform.translation.x);
-              rob_position.set<1>(tf_st_map_2_obj.transform.translation.y);
-              rob_position.set<2>(tf_st_map_2_obj.transform.translation.z);
+              rob_position.set<0>(tf_st_map_2_base.transform.translation.x);
+              rob_position.set<1>(tf_st_map_2_base.transform.translation.y);
+              rob_position.set<2>(tf_st_map_2_base.transform.translation.z);
 
               // Orientation
-              tf2::Quaternion q_map_2_obj;
-              tf2::fromMsg(tf_st_map_2_obj.transform.rotation, q_map_2_obj);
-              tf2::Matrix3x3 m_map_2_obj(q_map_2_obj);
+              tf2::Quaternion q_map_2_base;
+              tf2::fromMsg(tf_st_map_2_base.transform.rotation, q_map_2_base);
+              tf2::Matrix3x3 m_map_2_base(q_map_2_base);
               double r, p, y;
-              m_map_2_obj.getRPY(r, p, y);
+              m_map_2_base.getRPY(r, p, y);
               rob_orientation.push_back(r);
               rob_orientation.push_back(p);
               rob_orientation.push_back(y);
@@ -129,12 +129,13 @@ void Pr2RobotReader::updateRobot(tf::TransformListener &listener)
         bool tf_ok = false;
         tf::StampedTransform t;
         try {
-            listener.waitForTransform(robot_footprint_, "odom_combined", ros::Time(0), ros::Duration(1.0) ); // dest frame, origin frame
-            listener.lookupTransform(robot_footprint_, "odom_combined", ros::Time(0), t);
+            listener.waitForTransform("odom_combined", robot_footprint_, ros::Time(0), ros::Duration(1.0) ); // dest frame, origin frame
+            listener.lookupTransform("odom_combined", robot_footprint_, ros::Time(0), t);
             tf_ok = true;
         } catch (tf::TransformException ex) {
             ROS_ERROR("%s",ex.what());
         }
+
 
         if(tf_ok)
         {
