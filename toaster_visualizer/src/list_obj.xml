@@ -93,6 +93,7 @@
 
     <object name="cube_MOCAP_1"                         mesh_resource="package://toaster_visualizer/mesh/toaster_objects/cube_MOCAP_1.dae" />
     <object name="cube_MOCAP_2"                         mesh_resource="package://toaster_visualizer/mesh/toaster_objects/cube_MOCAP_2.dae" />
+    <object name="table_low_IKEA_MOCAP"          	mesh_resource="package://toaster_visualizer/mesh/toaster_objects/table_low_IKEA_MOCAP.dae" />
 
     <object name="env_adream_apartment_map"		mesh_resource="package://toaster_visualizer/mesh/toaster_environment/adream_apartment_in_map.dae" />
     <object name="env_adream_apartment_mocap_ref"	mesh_resource="package://toaster_visualizer/mesh/toaster_environment/adream_apartment_in_mocap_ref.dae" />
